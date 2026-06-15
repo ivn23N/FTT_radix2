@@ -28,10 +28,10 @@ architecture sim of tb_TOPmain is
 
     type int_vec_t is array (0 to N_POINTS-1) of integer;
 
-    constant X_RE : int_vec_t := (3, 1, 0, 2, 4, 1, 2, 0);
-    constant X_IM : int_vec_t := (0, 0, 0, 0, 0, 0, 0, 0);
-    constant REF_RE : int_vec_t := ( 3328,  -618, 1280,  106, 1280,  106, 1280,  -618);
-    constant REF_IM : int_vec_t := (    0,   150,    0, -874,    0,  874,    0,  -150);
+    constant X_RE : int_vec_t := (2816, -2304, 1792, -1280, 768, -256, -768, 1280);
+    constant X_IM : int_vec_t := (-2048, 1536, -1024, 512, 0, -512, 1024, -1536);
+    --constant REF_RE : int_vec_t := ( 3328,  -618, 1280,  106, 1280,  106, 1280,  -618);
+    --constant REF_IM : int_vec_t := (    0,   150,    0, -874,    0,  874,    0,  -150);
 
     function pack_complex(re : integer; im : integer)
         return std_logic_vector
@@ -62,26 +62,29 @@ architecture sim of tb_TOPmain is
     --   3328 ->  "13.0"     106  -> "0.4"
     --   -618 -> "-2.4"     -874  -> "-3.4"
     function q88_to_str(v : integer) return string is
-        variable int_part  : integer;
-        variable frac_part : integer;
-        variable abs_v     : integer;
-        variable sign_str  : string(1 to 1);
-    begin
-        if v < 0 then
-            abs_v    := -v;
-            sign_str := "-";
-        else
-            abs_v    := v;
-            sign_str := " ";
-        end if;
-        int_part  := abs_v / DATA_SCALE;
-        -- one decimal digit: (frac * 10) / SCALE
-        frac_part := ((abs_v mod DATA_SCALE) * 10) / DATA_SCALE;
-        return sign_str
-             & integer'image(int_part)
-             & "."
-             & integer'image(frac_part);
-    end function;
+    variable int_part  : integer;
+    variable frac_part : integer;
+    variable abs_v     : integer;
+    variable sign_str  : string(1 to 1);
+begin
+    if v < 0 then
+        abs_v    := -v;
+        sign_str := "-";
+    else
+        abs_v    := v;
+        sign_str := " ";
+    end if;
+
+    int_part  := abs_v / DATA_SCALE;
+
+    -- 4 decimales: parte fraccionaria * 10000 / 256
+    frac_part := ((abs_v mod DATA_SCALE) * 10000) / DATA_SCALE;
+
+    return sign_str
+         & integer'image(int_part)
+         & "."
+         & integer'image(frac_part);
+end function;
 
 begin
 
@@ -128,8 +131,8 @@ begin
             data_in(
                 (i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH
             ) <= pack_complex(
-                X_RE(i) * DATA_SCALE,
-                X_IM(i) * DATA_SCALE
+                X_RE(i),-- * DATA_SCALE,
+                X_IM(i)-- * DATA_SCALE
             );
         end loop;
 
