@@ -6,8 +6,8 @@ use work.twiddle_pkg.all;
 
 entity DFTmod is
     generic (
-        DATA_WIDTH : integer := 32;
-        FRAC_WIDTH : integer := 15
+        DATA_WIDTH : integer;
+        FRAC_WIDTH : integer
     );
     port (
         complex_a_in : in  std_logic_vector(DATA_WIDTH-1 downto 0);
